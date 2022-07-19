@@ -1,0 +1,9 @@
+*.aux
+*.bbl
+*.toc
+*.bcf
+*.log
+*.out
+*.run.xml
+
+all_solutions.tex

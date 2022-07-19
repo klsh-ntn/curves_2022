@@ -1,0 +1,270 @@
+% arara: xelatex: {shell: yes}
+% %arara: biber
+% %arara: xelatex: {shell: yes}
+% %arara: xelatex: {shell: yes}
+
+\documentclass[12pt]{article}
+
+\usepackage{hyperref} % гиперссылки
+
+\usepackage{tikz} % картинки в tikz
+\usetikzlibrary{arrows.meta} % tikz-прибамбас для рисовки стрелочек подлиннее
+
+\usepackage{microtype} % свешивание пунктуации
+
+\usepackage{array} % для столбцов фиксированной ширины
+
+\usepackage{indentfirst} % отступ в первом параграфе
+
+\usepackage{sectsty} % для центрирования названий частей
+\allsectionsfont{\centering}
+
+\usepackage{amsmath} % куча стандартных математических плюшек
+\usepackage{amssymb} % символы
+\usepackage{amsthm} % теоремки
+
+\usepackage{comment} % добавление длинных комментариев
+
+\usepackage[top=2cm, left=1.2cm, right=1.2cm, bottom=2cm]{geometry} % размер текста на странице
+
+\usepackage{lastpage} % чтобы узнать номер последней страницы
+
+\usepackage{enumitem} % дополнительные плюшки для списков
+%  например \begin{enumerate}[resume] позволяет продолжить нумерацию в новом списке
+
+\usepackage{caption} % что-то делает с подписями рисунков :)
+
+\usepackage{qcircuit} % для рисовки квантовых диаграмм
+\usepackage{physics} % бракеты
+
+\usepackage{answers} % разделение условий и ответов в упражнениях
+
+
+\usepackage{fancyhdr} % весёлые колонтитулы
+\pagestyle{fancy}
+\lhead{Куда кривая вывезет}
+\chead{}
+\rhead{КЛШ-2022}
+\lfoot{}
+\cfoot{}
+\rfoot{\thepage/\pageref{LastPage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+
+
+\usepackage{todonotes} % для вставки в документ заметок о том, что осталось сделать
+% \todo{Здесь надо коэффициенты исправить}
+% \missingfigure{Здесь будет Последний день Помпеи}
+% \listoftodos — печатает все поставленные \todo'шки
+
+
+
+\usepackage{booktabs} % красивые таблицы
+% заповеди из докупентации:
+% 1. Не используйте вертикальные линни
+% 2. Не используйте двойные линии
+% 3. Единицы измерения - в шапку таблицы
+% 4. Не сокращайте .1 вместо 0.1
+% 5. Повторяющееся значение повторяйте, а не говорите "то же"
+
+
+
+\usepackage{fontspec} % что-то про шрифты?
+\usepackage{polyglossia} % русификация xelatex
+
+\setmainlanguage{russian}
+\setotherlanguages{english}
+
+% download "Linux Libertine" fonts:
+% http://www.linuxlibertine.org/index.php?id=91&L=1
+\setmainfont{Linux Libertine O} % or Helvetica, Arial, Cambria
+% why do we need \newfontfamily:
+% http://tex.stackexchange.com/questions/91507/
+\newfontfamily{\cyrillicfonttt}{Linux Libertine O}
+
+\AddEnumerateCounter{\asbuk}{\russian@alph}{щ} % для списков с русскими буквами
+\setlist[enumerate, 2]{label=\asbuk*),ref=\asbuk*}
+
+%% эконометрические сокращения
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\Arg}{Arg}
+\DeclareMathOperator{\Corr}{Corr}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\E}{\mathbb{E}}
+\newcommand \hVar{\widehat{\Var}}
+\newcommand \hCorr{\widehat{\Corr}}
+\newcommand \hCov{\widehat{\Cov}}
+\newcommand \cN{\mathcal{N}}
+\let\P\relax
+\DeclareMathOperator{\P}{\mathbb{P}}
+
+\usepackage{multicol}
+
+\usepackage[bibencoding = auto,
+backend = biber,
+sorting = none,
+style=alphabetic]{biblatex}
+
+\addbibresource{forecast_everything.bib}
+
+
+
+% делаем короче интервал в списках
+\setlength{\itemsep}{0pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+
+
+
+
+\Newassociation{sol}{solution}{solution_file}
+% sol --- имя окружения внутри задач
+% solution --- имя окружения внутри solution_file
+% solution_file --- имя файла в который будет идти запись решений
+% можно изменить далее по ходу
+\Opensolutionfile{solution_file}[all_solutions]
+% в квадратных скобках фактическое имя файла
+
+% магия для автоматических гиперссылок задача-решение
+\newlist{myenum}{enumerate}{3}
+% \newcounter{problem}[chapter] % нумерация задач внутри глав
+\newcounter{problem}[section]
+
+\newenvironment{problem}%
+{%
+\refstepcounter{problem}%
+%  hyperlink to solution
+     \hypertarget{problem:{\thesection.\theproblem}}{} % нумерация внутри глав
+     % \hypertarget{problem:{\theproblem}}{}
+     \Writetofile{solution_file}{\protect\hypertarget{soln:\thesection.\theproblem}{}}
+     %\Writetofile{solution_file}{\protect\hypertarget{soln:\theproblem}{}}
+     \begin{myenum}[label=\bfseries\protect\hyperlink{soln:\thesection.\theproblem}{\thesection.\theproblem},ref=\thesection.\theproblem]
+     % \begin{myenum}[label=\bfseries\protect\hyperlink{soln:\theproblem}{\theproblem},ref=\theproblem]
+     \item%
+    }%
+    {%
+    \end{myenum}}
+% для гиперссылок обратно надо переопределять окружение
+% это происходит непосредственно перед подключением файла с решениями
+
+
+
+\theoremstyle{definition}
+\newtheorem{definition}{Определение}
+
+
+
+\begin{document}
+
+\tableofcontents{}
+
+\section*{Анонс}
+...
+
+\newpage
+\setcounter{section}{0}
+\section{Парабола}
+
+Три алгебраических вида. Важно уметь быстро строить из любого вида!
+
+\[
+y = ax^2 + bx + c  
+\]
+\[
+y = a(x - x_{\text{в}}) + y_{\text{в}}
+\]
+\[
+y = a(x - x_1) (x-x_2)  
+\]
+
+Совет: рисуйте сразу, не переводя из одного вида в другой. 
+
+Вопрос: правда ли, что все круги одинаковой формы, но разного размера?
+
+Вопрос: правда ли, что все параболы одинаковой формы, но разного размера?
+
+Подумайте о $y=x^2$ и $y=6x^2$.
+
+Два геометрических определения.
+
+Парабола — множество точек, находящихся на одинаковом расстоянии от заданной точки $F$ 
+и заданной прямой $d$. Точка $F$ называется фокусом, а прямая $d$ — директрисой. 
+
+Упражнение. Даны фокус $F$ и директриса $d$. 
+Как геометрически построить какую-нибудь точку на параболе?
+
+Парабола — кривая, отражающая параллельно идущие лучи в одну точку $F$. 
+
+Доказательство того, определение через множество точек обладает свойством фокусировки лучей. 
+
+Шок-контент. Все параболы одинаковой формы! 
+Ведь при увеличении можно произвольным образом менять расстояние между фокусом и директрисой, а именно им всё и определяется. 
+Алгебраически, $y=6x^2$, $6y = 6^2 x^2$, $\tilde y = \tilde x^2$.
+
+Упражнение. Дан фокус $F$ и директриса $d$. Как наиболее просто выбрать оси?
+Запишите уравнение параболы в выбранных осях. 
+
+Упражнение. Дана парабола $y=x^2$. Найдите фокус и директрису. 
+
+
+Упражнение. Дана парабола $y=2x^2 + 6x + 7$. Найдите фокус и директрису. 
+
+О школьниках: на первом занятии было 17 человек. 
+
+\section{Заметай!?}
+
+Дано семейство касательных, $y = 3 + x + 2xa - a^2$, найдите (п)огибающую.
+
+\section{Загоночная работа}
+
+
+
+
+\newpage
+
+\section{Лог. КЛШ-2022}
+
+\begin{enumerate}
+  \item 
+\end{enumerate}
+
+В теховском файле \verb|\newpage| стоит, чтобы легко было скопировать секцию, для печати двух копий подряд на одном листе.
+Это позволяет экономить бумагу и время при печати :)
+
+\subsection{Плакат}
+
+
+
+
+
+\Closesolutionfile{solution_file}
+
+% для гиперссылок на условия
+% http://tex.stackexchange.com/questions/45415
+\renewenvironment{solution}[1]{%
+         % add some glue
+         \vskip .5cm plus 2cm minus 0.1cm%
+         {\bfseries \hyperlink{problem:#1}{#1.}}%
+}%
+{%
+}%
+
+
+
+\section{Решения}
+\input{all_solutions}
+
+
+\section{Источники мудрости}
+
+\todo[inline]{передалать потом в bib-файл}
+
+\begin{enumerate}
+\item 
+\end{enumerate}
+
+\printbibliography[heading=none]
+
+
+\end{document}
